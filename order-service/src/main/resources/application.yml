@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: order-service
+  datasource:
+    url: jdbc:h2:mem:orders;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+
+server:
+  port: 8080
+
+# Timeout for HTTP client calls (conceptual; applied in services)
+app:
+  operation-timeout-ms: 30000
+  idempotency-key-ttl-hours: 24
