@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: etl-order-extract
+  datasource:
+    url: jdbc:h2:mem:etl_orders;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+
+app:
+  extract-timeout-seconds: 60
+  idempotency-run-key-ttl-hours: 24

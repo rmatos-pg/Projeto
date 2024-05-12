@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+    options {
+        timeout(time: 25, unit: 'MINUTES')
+        timestamps()
+        retry(2)
+    }
+    environment {
+        JAVA_HOME = tool name: 'JDK17', type: 'jdk'
+    }
+    stages {
+        stage('Checkout') {
+            steps { checkout scm }
+        }
+        stage('Build') {
+            steps {
+                dir('etl-payment-pipeline') {
+                    sh 'mvn -B clean package -DskipTests'
+                }
+            }
+        }
+        stage('Test') {
+            steps {
+                dir('etl-payment-pipeline') {
+                    sh 'mvn -B test'
+                }
+            }
+        }
+        stage('Run Pipeline') {
+            when { expression { return params.RUN_PIPELINE == true } }
+            steps {
+                dir('etl-payment-pipeline') {
+                    sh "java -jar target/etl-payment-pipeline-1.0.0.jar --batchId=${params.BATCH_ID ?: 'default'}"
+                }
+            }
+        }
+    }
+    post {
+        failure { echo 'Pipeline failed. Retry available.' }
+    }
+}

@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+    options {
+        timeout(time: 20, unit: 'MINUTES')
+        timestamps()
+        retry(2)
+    }
+    stages {
+        stage('Checkout') {
+            steps { checkout scm }
+        }
+        stage('Build') {
+            steps {
+                dir('etl-orchestrator') {
+                    sh 'npm install'
+                    sh 'npm run build'
+                }
+            }
+        }
+        stage('Orchestrate') {
+            when { expression { return params.RUN_ORCHESTRATOR == true } }
+            steps {
+                dir('etl-orchestrator') {
+                    sh "node dist/index.js --runId=${params.RUN_ID ?: 'default'}"
+                }
+            }
+        }
+    }
+    post {
+        failure { echo 'Pipeline failed. Retry available.' }
+    }
+}

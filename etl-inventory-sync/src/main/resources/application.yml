@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: etl-inventory-sync
+  datasource:
+    url: jdbc:h2:mem:etl_inventory;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+
+app:
+  sync-timeout-seconds: 40

@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+    options {
+        timeout(time: 15, unit: 'MINUTES')
+        timestamps()
+        retry(2)
+    }
+    stages {
+        stage('Checkout') {
+            steps { checkout scm }
+        }
+        stage('Build') {
+            steps {
+                dir('etl-user-migration') {
+                    sh 'npm install'
+                    sh 'npm run build'
+                }
+            }
+        }
+        stage('Run Migration') {
+            when { expression { return params.RUN_MIGRATION == true } }
+            steps {
+                dir('etl-user-migration') {
+                    sh "node dist/index.js --migrationId=${params.MIGRATION_ID ?: 'default'}"
+                }
+            }
+        }
+    }
+    post {
+        failure { echo 'Pipeline failed. Retry available.' }
+    }
+}

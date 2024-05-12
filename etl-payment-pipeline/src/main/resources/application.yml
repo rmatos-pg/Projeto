@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: etl-payment-pipeline
+  datasource:
+    url: jdbc:h2:mem:etl_payments;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+
+app:
+  load-timeout-seconds: 45

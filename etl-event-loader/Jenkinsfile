@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+    options {
+        timeout(time: 15, unit: 'MINUTES')
+        timestamps()
+        retry(2)
+    }
+    stages {
+        stage('Checkout') {
+            steps { checkout scm }
+        }
+        stage('Build') {
+            steps {
+                dir('etl-event-loader') {
+                    sh 'npm install'
+                    sh 'npm run build'
+                }
+            }
+        }
+        stage('Load') {
+            when { expression { return params.RUN_LOAD == true } }
+            steps {
+                dir('etl-event-loader') {
+                    sh "node dist/index.js --loadId=${params.LOAD_ID ?: 'default'}"
+                }
+            }
+        }
+    }
+    post {
+        failure { echo 'Pipeline failed. Retry available.' }
+    }
+}

@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+    options {
+        timeout(time: 20, unit: 'MINUTES')
+        timestamps()
+        retry(2)
+    }
+    environment {
+        JAVA_HOME = tool name: 'JDK17', type: 'jdk'
+    }
+    stages {
+        stage('Checkout') {
+            steps { checkout scm }
+        }
+        stage('Build') {
+            steps {
+                dir('etl-inventory-sync') {
+                    sh 'mvn -B clean package -DskipTests'
+                }
+            }
+        }
+        stage('Test') {
+            steps {
+                dir('etl-inventory-sync') {
+                    sh 'mvn -B test'
+                }
+            }
+        }
+        stage('Sync') {
+            when { expression { return params.RUN_SYNC == true } }
+            steps {
+                dir('etl-inventory-sync') {
+                    sh "java -jar target/etl-inventory-sync-1.0.0.jar --syncId=${params.SYNC_ID ?: 'default'}"
+                }
+            }
+        }
+    }
+    post {
+        failure { echo 'Pipeline failed. Retry available.' }
+    }
+}

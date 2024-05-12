@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+        timestamps()
+        retry(2)
+    }
+    environment {
+        JAVA_HOME = tool name: 'JDK17', type: 'jdk'
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Build') {
+            steps {
+                dir('etl-order-extract') {
+                    sh 'mvn -B clean package -DskipTests'
+                }
+            }
+        }
+        stage('Test') {
+            steps {
+                dir('etl-order-extract') {
+                    sh 'mvn -B test'
+                }
+            }
+        }
+        stage('Run ETL') {
+            when { expression { return params.RUN_ETL == true } }
+            steps {
+                dir('etl-order-extract') {
+                    sh 'java -jar target/etl-order-extract-1.0.0.jar'
+                }
+            }
+        }
+    }
+    post {
+        always {
+            junit allowEmptyResults: true, testResults: 'etl-order-extract/target/surefire-reports/*.xml'
+        }
+        failure {
+            echo 'Pipeline failed. Retry available via options.'
+        }
+    }
+}
