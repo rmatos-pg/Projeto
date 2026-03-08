@@ -1,0 +1,29 @@
+node_modules/
+*.db
+.env
+.env.local
+*.log
+
+# Test files and output
+*.test.js
+coverage/
+.nyc_output/
+*.lcov
+
+# Build / dist
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+*.tmp
+*.temp
+.cache/
+
+# Docs (somente README e ARCHITECTURE versionados)
+*.md
+!README.md
+!ARCHITECTURE.md

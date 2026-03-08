@@ -1,0 +1,17 @@
+{
+  "name": "Jitterbit Order API",
+  "dockerComposeFile": ["../docker-compose.yml", "../docker-compose.dev.yml"],
+  "service": "api",
+  "workspaceFolder": "/app",
+  "forwardPorts": [3000, 5432],
+  "postCreateCommand": "npm install",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "ms-azuretools.vscode-docker",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  }
+}

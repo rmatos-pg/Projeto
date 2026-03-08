@@ -1,0 +1,7 @@
+# Override para DevContainer - monta o código e mantém hot-reload
+services:
+  api:
+    volumes:
+      - .:/app
+      - /app/node_modules  # preserva node_modules do container
+    command: npm run dev
